@@ -28,6 +28,7 @@ max_amp = 0
 min_amp = 0
 
 # Loop through all wav files and use librosa for spectrograms
+print("Starting audio --> spectrograms...")
 for idx, audio_filename in enumerate(wav_filenames):
     audio_file = Path(path_to_audio / audio_filename)
     spectrogram = librosa.load(audio_file)
@@ -40,6 +41,8 @@ for idx, audio_filename in enumerate(wav_filenames):
     min_amp = min_y if min_y < min_amp else min_amp
 
 # Loop through all spectrograms and plot them
+print("Starting creating .png's")
+no_files = len(spectrograms)
 for idx, spectrogram in enumerate(spectrograms):
     # Plot
     plt.plot(spectrogram[0])
@@ -52,4 +55,11 @@ for idx, spectrogram in enumerate(spectrograms):
     file_to_save = path_to_pyplot / png_filename
 
     # Save file
-    plt.savefig(file_to_save)
+    plt.savefig(file_to_save, bbox_inches="tight", pad_inches=0)
+    plt.close()
+
+    # Print status
+    print(f"{idx + 1} / {no_files} done")
+
+    if idx >= 1:
+        break
