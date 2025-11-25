@@ -32,7 +32,7 @@ print("Starting .wav --> waveforms...")
 for idx, wav_filename in enumerate(wav_filenames):
     wav_file = path_to_audio / wav_filename
 
-    aud, sr = librosa.load(wav_file, sr=22050)
+    aud, sr = librosa.load(wav_file)
     waveform = aud, sr
     waveforms.append(waveform)
 
@@ -60,21 +60,20 @@ for idx, waveform in enumerate(waveforms):
     # Plot STFT and save
     stft_spec = librosa.stft(waveform[0])
     stft_spec_db = librosa.amplitude_to_db(np.abs(stft_spec), ref=np.max)
-    # plt.axis("off")
-    librosa.display.specshow(stft_spec_db, x_axis="time", y_axis="hz", fmax=16000)
-    #plt.savefig(stft_spec_db, dpi="figure", bbox_inches="tight", pad_inches=0)
-    plt.savefig(stft_file)
+    plt.axis("off")
+    librosa.display.specshow(stft_spec_db, x_axis="time", y_axis="hz")
+    plt.savefig(stft_file, dpi="figure", bbox_inches="tight", pad_inches=0)
     plt.close()
 
     # Plot MEL and save
-    mel_spec = librosa.feature.melspectrogram(y=waveform[0], sr=waveform[1])
+    mel_spec = librosa.feature.melspectrogram(y=waveform[0], sr=waveform[1], n_mels=128, fmax=8000)
     mel_spec_db = librosa.power_to_db(mel_spec, ref=np.max)
     # plt.axis("off")
     librosa.display.specshow(mel_spec_db, x_axis="time", y_axis="mel", sr=waveform[1], fmax=8000)
-    # plt.savefig(spectrogram_file, dpi="figure", bbox_inches="tight", pad_inches=0)
-    plt.savefig(mel_file)
+    plt.savefig(mel_file, dpi="figure", bbox_inches="tight", pad_inches=0)
     plt.close()
 
+    # Print status
     print(f"{idx + 1} / {no_files} done.")
 
     if idx > 1:
