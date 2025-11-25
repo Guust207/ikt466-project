@@ -18,20 +18,21 @@ def wav_to_png(_wav_filename: str):
 path_to_data = Path.cwd() / ".." / "data"
 path_to_audio = path_to_data / "audio"
 path_to_waveform = path_to_data / "waveform"
-path_to_spectrogram = path_to_data / "spectrogram"
+path_to_stft = path_to_data / "STFT"
+path_to_mel = path_to_data / "mel"
 
 # Get list of .wav filenames
 wav_filenames = get_wav_filenames(path_to_audio)
 
 # List of waveforms relating to the .wav files
-waveforms = [] # [[aud1, sr1], [aud2, sr2], ...] | sr = Sample Rate
+waveforms = [] # [[aud1, sr1], [aud2, sr2], ...]
 
-# Use SciPy to get all waveforms out of the .wav files
+# Use librosa to get all waveforms out of the .wav files
 print("Starting .wav --> waveforms...")
 for idx, wav_filename in enumerate(wav_filenames):
     wav_file = path_to_audio / wav_filename
 
-    aud, sr = librosa.load(wav_file)
+    aud, sr = librosa.load(wav_file, sr=22050)
     waveform = aud, sr
     waveforms.append(waveform)
 
@@ -46,7 +47,8 @@ for idx, waveform in enumerate(waveforms):
     # Give filename
     png_filename = wav_to_png(wav_filenames[idx])
     waveform_file = path_to_waveform / png_filename
-    spectrogram_file = path_to_spectrogram / png_filename
+    stft_file = path_to_stft / png_filename
+    mel_file = path_to_mel / png_filename
 
     # Plot waveforms and save
     plt.plot(waveform[0])
@@ -55,12 +57,22 @@ for idx, waveform in enumerate(waveforms):
     plt.savefig(waveform_file, dpi="figure", bbox_inches="tight", pad_inches=0)
     plt.close()
 
-    # Plot spectrograms and save
-    stft_aud = librosa.stft(waveform[0])
-    spec = librosa.amplitude_to_db(np.abs(stft_aud), ref=np.max)
-    plt.axis("off")
-    librosa.display.specshow(spec)
-    plt.savefig(spectrogram_file, dpi="figure", bbox_inches="tight", pad_inches=0)
+    # Plot STFT and save
+    stft_spec = librosa.stft(waveform[0])
+    stft_spec_db = librosa.amplitude_to_db(np.abs(stft_spec), ref=np.max)
+    # plt.axis("off")
+    librosa.display.specshow(stft_spec_db, x_axis="time", y_axis="hz", fmax=16000)
+    #plt.savefig(stft_spec_db, dpi="figure", bbox_inches="tight", pad_inches=0)
+    plt.savefig(stft_file)
+    plt.close()
+
+    # Plot MEL and save
+    mel_spec = librosa.feature.melspectrogram(y=waveform[0], sr=waveform[1])
+    mel_spec_db = librosa.power_to_db(mel_spec, ref=np.max)
+    # plt.axis("off")
+    librosa.display.specshow(mel_spec_db, x_axis="time", y_axis="mel", sr=waveform[1], fmax=8000)
+    # plt.savefig(spectrogram_file, dpi="figure", bbox_inches="tight", pad_inches=0)
+    plt.savefig(mel_file)
     plt.close()
 
     print(f"{idx + 1} / {no_files} done.")
