@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.io.wavfile as wavfile
 from pathlib import Path
+import librosa
+import librosa.display
+import librosa.feature
 
 
 def get_wav_filenames(path_to_dir: Path):
@@ -22,21 +24,19 @@ path_to_spectrogram = path_to_data / "spectrogram"
 wav_filenames = get_wav_filenames(path_to_audio)
 
 # List of waveforms relating to the .wav files
-waveforms = [] # [[sr1, aud1], [sr2, aud2], ...] | sr = Sample Rate
+waveforms = [] # [[aud1, sr1], [aud2, sr2], ...] | sr = Sample Rate
 
 # Use SciPy to get all waveforms out of the .wav files
 print("Starting .wav --> waveforms...")
 for idx, wav_filename in enumerate(wav_filenames):
     wav_file = path_to_audio / wav_filename
 
-    sr, aud = wavfile.read(wav_file)
-    aud[aud == 0] = 1e-6
-
-    waveform = sr, aud
+    aud, sr = librosa.load(wav_file)
+    waveform = aud, sr
     waveforms.append(waveform)
 
 # Find max- and min-amplitude
-waveforms_flattened = np.concatenate([aud for _, aud in waveforms])
+waveforms_flattened = np.concatenate([aud for aud, _ in waveforms])
 min_amp, max_amp = np.min(waveforms_flattened), np.max(waveforms_flattened)
 
 # Plot- and save the waveforms as .png's
@@ -49,15 +49,17 @@ for idx, waveform in enumerate(waveforms):
     spectrogram_file = path_to_spectrogram / png_filename
 
     # Plot waveforms and save
-    plt.plot(waveform[1])
+    plt.plot(waveform[0])
     plt.ylim([min_amp, max_amp])
     plt.axis("off")
     plt.savefig(waveform_file, dpi="figure", bbox_inches="tight", pad_inches=0)
     plt.close()
 
     # Plot spectrograms and save
-    plt.specgram(waveform[1], Fs=waveform[0], NFFT=2048, noverlap=1024, xextent=None)
+    stft_aud = librosa.stft(waveform[0])
+    spec = librosa.amplitude_to_db(np.abs(stft_aud), ref=np.max)
     plt.axis("off")
+    librosa.display.specshow(spec)
     plt.savefig(spectrogram_file, dpi="figure", bbox_inches="tight", pad_inches=0)
     plt.close()
 
