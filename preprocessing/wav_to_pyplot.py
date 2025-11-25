@@ -1,11 +1,8 @@
 import matplotlib.pyplot as plt
-import librosa
 import librosa.display
-import os
 from pathlib import Path
-import numpy as np
-import csv
-import re
+
+
 
 def get_wav_filenames(path_to_dir: Path):
     filenames = [file.name for file in path_to_dir.iterdir() if file.is_file()]
@@ -23,7 +20,7 @@ path_to_pyplot = path_to_data / "pyplot"
 
 wav_filenames = get_wav_filenames(path_to_audio)
 
-spectrograms = [] # [y1, sr1], [y2, sr2], ...]
+spectrograms = []  # [y1, sr1], [y2, sr2], ...]
 max_amp = 0
 min_amp = 0
 
@@ -55,11 +52,8 @@ for idx, spectrogram in enumerate(spectrograms):
     file_to_save = path_to_pyplot / png_filename
 
     # Save file
-    plt.savefig(file_to_save, bbox_inches="tight", pad_inches=0)
+    plt.savefig(file_to_save, dpi="figure", bbox_inches="tight", pad_inches=0)
     plt.close()
 
     # Print status
     print(f"{idx + 1} / {no_files} done")
-
-    if idx >= 1:
-        break

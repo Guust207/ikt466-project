@@ -1,17 +1,31 @@
-def filename_to_label_name(file_names: list[str]):
+import re
+
+
+def filename_to_metadata(file_names: list[str], return_labels=False):
+    """
+    Gets fold, source name, label and take from .wav filename.
+
+    :param file_names: List of .wav filename strings
+    :param return_labels: Bool, where True means returning only a list of labels.
+    :return: List of dictionaries ["fold", "source_file", "label", "take"] or strings.
+    """
     # 1-137-A-32.wav
     # 1 --> Fold
     # 137 --> Source file
-    # 32 --> Label
     # A --> Take
+    # 32 --> Label
 
-    # Can be edited to include the all
-    label_list = []
+    metadata_list = []
 
     for filename in file_names:
         filename = filename.replace(".wav", "")
-        fold, name, take, label = re.split(r"[-]", filename)
+        fold, source_file, take, label = re.split(r"-", filename)
 
-        label_list.append(int(label))
+        data_dict = {"fold": fold, "source_file": source_file, "take": take, "label": label}
 
-    return label_list
+        if return_labels:
+            metadata_list.append(data_dict["label"])
+        else:
+            metadata_list.append(data_dict)
+
+    return metadata_list
