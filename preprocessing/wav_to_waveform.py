@@ -46,9 +46,9 @@ print("Starting creating .png's...")
 for idx, waveform in enumerate(waveforms):
     # Give filename
     png_filename = wav_to_png(wav_filenames[idx])
-    waveform_file = path_to_waveform / png_filename
-    stft_file = path_to_stft / png_filename
-    mel_file = path_to_mel / png_filename
+    waveform_file = path_to_waveform / f"waveform-{png_filename}"
+    stft_file = path_to_stft / f"stft-{png_filename}"
+    mel_file = path_to_mel / f"mel-{png_filename}"
 
     # Plot waveforms and save
     plt.plot(waveform[0])
@@ -61,7 +61,7 @@ for idx, waveform in enumerate(waveforms):
     stft_spec = librosa.stft(waveform[0])
     stft_spec_db = librosa.amplitude_to_db(np.abs(stft_spec), ref=np.max)
     plt.axis("off")
-    librosa.display.specshow(stft_spec_db, x_axis="time", y_axis="hz")
+    librosa.display.specshow(stft_spec_db)
     plt.savefig(stft_file, dpi="figure", bbox_inches="tight", pad_inches=0)
     plt.close()
 
@@ -69,12 +69,9 @@ for idx, waveform in enumerate(waveforms):
     mel_spec = librosa.feature.melspectrogram(y=waveform[0], sr=waveform[1], n_mels=128, fmax=8000)
     mel_spec_db = librosa.power_to_db(mel_spec, ref=np.max)
     # plt.axis("off")
-    librosa.display.specshow(mel_spec_db, x_axis="time", y_axis="mel", sr=waveform[1], fmax=8000)
+    librosa.display.specshow(mel_spec_db, sr=waveform[1], fmax=8000)
     plt.savefig(mel_file, dpi="figure", bbox_inches="tight", pad_inches=0)
     plt.close()
 
     # Print status
     print(f"{idx + 1} / {no_files} done.")
-
-    if idx > 1:
-        break
