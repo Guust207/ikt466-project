@@ -208,3 +208,5 @@ __marimo__/
 
 # Custom shit
 data
+# Auto-generated image examples from script add_axis_to_images_for_report
+data/visualization_examples/
